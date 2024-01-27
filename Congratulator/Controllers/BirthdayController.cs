@@ -17,9 +17,9 @@ namespace Congratulator.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<BirthdayResponse>>> GetBirthdays() 
+        public async Task<ActionResult<List<BirthdayResponse>>> GetBirthdays(string intervalTime = "") 
         {
-            var birthdays = await _birthdayService.GetAllBirthdays();
+            var birthdays = await _birthdayService.GetAllBirthdays(intervalTime);
 
             var response = birthdays.Select(b => new BirthdayResponse(b.Id, b.Name, b.Description, b.Date));
 

@@ -6,7 +6,7 @@ namespace Congratulator.Core.Abstractions
     {
         Task<Guid> CreateBirthday(Birthday birthday);
         Task<Guid> DeleteBirthday(Guid id);
-        Task<List<Birthday>> GetAllBirthdays();
+        Task<List<Birthday>> GetAllBirthdays(string intervalTime);
         Task<Guid> UpdateBirthday(Guid id, string name, string description, DateTime date);
     }
 }
