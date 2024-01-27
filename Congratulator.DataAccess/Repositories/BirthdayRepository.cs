@@ -43,12 +43,11 @@ namespace Congratulator.DataAccess.Repositories
                 }
                 return filtered;
             }
-             
+            
             int GetDayOfYear(DateTime date)
-             {
-                 TimeSpan difference = date - new DateTime(date.Year, 1, 1);
-                 return difference.Days + 1;
-             }
+            {
+                return date.DayOfYear;
+            }
         }
 
         public async Task<Guid> Create(Birthday birthday)
