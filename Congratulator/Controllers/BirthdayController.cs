@@ -36,7 +36,6 @@ namespace Congratulator.API.Controllers
                 Date = request.Date,
             };
             
-
             var birthdayId = await _birthdayService.CreateBirthday(birthday);
 
             return Ok(birthdayId);

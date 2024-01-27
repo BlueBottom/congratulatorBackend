@@ -15,85 +15,35 @@ namespace Congratulator.DataAccess.Repositories
 
         public async Task<List<Birthday>> Get(string intervalTime)
         {
-            
-            static int GetDayOfYear(DateTime date)
-            {
-                TimeSpan difference = date - new DateTime(date.Year, 1, 1);
-                
-                return difference.Days + 1;
-            }
-            
-            var birthdayEntities = await _context.Birthdays
-                .AsNoTracking()
-                .ToListAsync();
-            
-            DateTime today = DateTime.Today;
-            int dayOfYear = GetDayOfYear(today);
+            var today = DateTime.Today;
+            var dayOfYear = GetDayOfYear(today);
+            var birthdayEntities = await _context.Birthdays.AsNoTracking().ToListAsync();
 
-            switch (intervalTime)
+            return intervalTime switch
             {
-                case "today": 
-                    return birthdayEntities.Select(birthday => new Birthday
-                    {
-                        Id = birthday.Id,
-                        Name = birthday.Name,
-                        Description = birthday.Description,
-                        Date = birthday.Date,
-                    })
-                    .Where(x=>(x.Date.Day == today.Day) && (x.Date.Month == today.Month))
-                    .ToList();
-                
-                case "tomorrow" :
-                    return birthdayEntities.Select(birthday => new Birthday
-                    {
-                        Id = birthday.Id,
-                        Name = birthday.Name,
-                        Description = birthday.Description,
-                        Date = birthday.Date,
-                    })
-                    .Where(x=>(GetDayOfYear(x.Date) - dayOfYear == 1))
-                    .OrderBy(x=>x.Name)
-                    .ToList();
-                
-                case "10 days":
-                    return birthdayEntities.Select(birthday => new Birthday
-                        {
-                            Id = birthday.Id,
-                            Name = birthday.Name,
-                            Description = birthday.Description,
-                            Date = birthday.Date,
-                        })
-                        .Where(x=>((GetDayOfYear(x.Date) - dayOfYear <= 10) && (GetDayOfYear(x.Date) - dayOfYear >= 0 )))
-                        .OrderBy(x=>x.Date.Day)
-                        .ToList();
-
-                case "this month":
-                    return birthdayEntities.Select(birthday => new Birthday
-                        {
-                            Id = birthday.Id,
-                            Name = birthday.Name,
-                            Description = birthday.Description,
-                            Date = birthday.Date,
-                        })
-                        .Where(x=>(x.Date.Month == today.Month))
-                        .OrderBy(x=>x.Date.Day)
-                        .ToList();
-                
-                default: 
-                    return birthdayEntities
-                    .Select(birthday => new Birthday
-                    {
-                        Id = birthday.Id,
-                        Name = birthday.Name,
-                        Description = birthday.Description,
-                        Date = birthday.Date,
-                    })
-                    .OrderBy(x=> x.Name)
-                    .ToList();
+                "today" => FilterBirthdays(birthdayEntities, x => x.Date.Day == today.Day && x.Date.Month == today.Month),
+                "tomorrow" => FilterBirthdays(birthdayEntities, x => GetDayOfYear(x.Date) - dayOfYear == 1, x => x.Name),
+                "10 days" => FilterBirthdays(birthdayEntities, x => GetDayOfYear(x.Date) - dayOfYear >= 0 && GetDayOfYear(x.Date) - dayOfYear <= 10, x => GetDayOfYear(x.Date)),
+                "this month" => FilterBirthdays(birthdayEntities, x => x.Date.Month == today.Month, x => x.Date.Day),
+                _ => FilterBirthdays(birthdayEntities, x => true, x => x.Name)
+            };
+            
+            List<Birthday> FilterBirthdays(List<Birthday> birthdays, Predicate<Birthday> predicate, Func<Birthday, object> ordering = null)
+            {
+                var filtered = birthdays.FindAll(predicate);
+                if (ordering != null)
+                {
+                    filtered.Sort((x, y) => Comparer<object>.Default.Compare(ordering(x), ordering(y)));
+                }
+                return filtered;
             }
+             
+            int GetDayOfYear(DateTime date)
+             {
+                 TimeSpan difference = date - new DateTime(date.Year, 1, 1);
+                 return difference.Days + 1;
+             }
         }
-        
-        
 
         public async Task<Guid> Create(Birthday birthday)
         {
@@ -132,6 +82,4 @@ namespace Congratulator.DataAccess.Repositories
             return id;
         }
     }
-
-
 }
