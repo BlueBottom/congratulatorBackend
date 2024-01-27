@@ -13,7 +13,7 @@ namespace Congratulator.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<List<Birthday>> Get(string intervalTime)
+        public async Task<List<Birthday>> Get(string intervalTime, string searchString)
         {
             var today = DateTime.Today;
             var dayOfYear = GetDayOfYear(today);
@@ -21,19 +21,25 @@ namespace Congratulator.DataAccess.Repositories
 
             return intervalTime switch
             {
-                "today" => FilterBirthdays(birthdayEntities, x => x.Date.Day == today.Day && x.Date.Month == today.Month),
-                "tomorrow" => FilterBirthdays(birthdayEntities, x => GetDayOfYear(x.Date) - dayOfYear == 1, x => x.Name),
-                "10 days" => FilterBirthdays(birthdayEntities, x => GetDayOfYear(x.Date) - dayOfYear >= 0 && GetDayOfYear(x.Date) - dayOfYear <= 10, x => GetDayOfYear(x.Date)),
-                "this month" => FilterBirthdays(birthdayEntities, x => x.Date.Month == today.Month, x => x.Date.Day),
-                _ => FilterBirthdays(birthdayEntities, x => true, x => x.Name)
+                "all" => (searchString != null) ? birthdayEntities.Where(x=>x.Name.Contains(searchString)).OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList() : birthdayEntities.OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList(),
+                "today" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Day == today.Day && x.Date.Month == today.Month),
+                "tomorrow" => FilterBirthdays(birthdayEntities, searchString,x => GetDayOfYear(x.Date) - dayOfYear == 1, x => x.Name),
+                "10 days" => FilterBirthdays(birthdayEntities, searchString,x => GetDayOfYear(x.Date) - dayOfYear >= 0 && GetDayOfYear(x.Date) - dayOfYear <= 10, x => GetDayOfYear(x.Date)),
+                "this month" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Month == today.Month, x => x.Date.Day),
+                _ => FilterBirthdays(birthdayEntities, searchString,x => true).OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList()
             };
             
-            List<Birthday> FilterBirthdays(List<Birthday> birthdays, Predicate<Birthday> predicate, Func<Birthday, object> ordering = null)
+            List<Birthday> FilterBirthdays(List<Birthday> birthdays, string searchString, Predicate<Birthday> predicate, Func<Birthday, object> ordering = null)
             {
                 var filtered = birthdays.FindAll(predicate);
                 if (ordering != null)
                 {
                     filtered.Sort((x, y) => Comparer<object>.Default.Compare(ordering(x), ordering(y)));
+                }
+
+                if (searchString != null)
+                {
+                    filtered = filtered.Where(x => x.Name.Contains(searchString)).ToList();
                 }
                 return filtered;
             }

@@ -11,9 +11,9 @@ namespace Congratulator.Application.Services
             _birthdayRepository = birthdayRepository;
         }
 
-        public async Task<List<Birthday>> GetAllBirthdays(string intervalTime = "")
+        public async Task<List<Birthday>> GetAllBirthdays(string intervalTime = "", string searchString = "")
         {
-            return await _birthdayRepository.Get(intervalTime);
+            return await _birthdayRepository.Get(intervalTime, searchString);
         }
 
         public async Task<Guid> CreateBirthday(Birthday birthday)
