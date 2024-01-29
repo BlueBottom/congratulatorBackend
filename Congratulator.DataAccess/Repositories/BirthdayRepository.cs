@@ -39,7 +39,7 @@ namespace Congratulator.DataAccess.Repositories
                     filtered.Sort((x, y) => Comparer<object>.Default.Compare(ordering(x), ordering(y)));
                 }
 
-                if (String.IsNullOrEmpty(searchString))
+                if (!String.IsNullOrEmpty(searchString))
                 {
                     filtered = filtered.Where(x => x.Name.Contains(searchString)).ToList();
                 }
