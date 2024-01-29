@@ -1,4 +1,4 @@
-﻿using Congratulator.API.Contracts;
+﻿using Congratulator.Contracts.Contracts;
 using Congratulator.Core.Abstractions;
 using Congratulator.Domain.Birthday;
 using Microsoft.AspNetCore.Mvc;
@@ -29,15 +29,8 @@ namespace Congratulator.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateBirthday([FromBody] BirthdayRequest request)
         {
-            var birthday = new Birthday
-            {
-                Name = request.Name,
-                Description = request.Description,
-                Date = request.Date,
-            };
-            
 
-            var birthdayId = await _birthdayService.CreateBirthday(birthday);
+            var birthdayId = await _birthdayService.CreateBirthday(request);
 
             return Ok(birthdayId);
         }

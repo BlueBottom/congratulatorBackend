@@ -1,12 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace Congratulator.API.Contracts
+namespace Congratulator.Contracts.Contracts
 {
-    // public record BirthdayRequest(
-    //     string Name,
-    //     string Description,
-    //     DateTime Date);
-
     public class BirthdayRequest
     {
         [StringLength(200)]
