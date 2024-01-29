@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Congratulator.Application\Congratulator.Application.csproj" />
+    <ProjectReference Include="..\Congratulator.Contracts\Congratulator.Contracts.csproj" />
     <ProjectReference Include="..\Congratulator.DataAccess\Congratulator.DataAccess.csproj" />
   </ItemGroup>
 
