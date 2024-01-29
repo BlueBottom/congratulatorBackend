@@ -1,4 +1,5 @@
-﻿using Congratulator.Core.Abstractions;
+﻿using System.Runtime.InteropServices.JavaScript;
+using Congratulator.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Congratulator.Domain.Birthday;
 
@@ -13,26 +14,38 @@ namespace Congratulator.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<List<Birthday>> Get()
+        public async Task<List<Birthday>> Get(string intervalTime, string searchString)
         {
-            var birthdayEntities = await _context.Birthdays
-                .AsNoTracking()
-                .ToListAsync();
+            var today = DateTime.Today;
+            var dayOfYear = DateTime.Today.DayOfYear;
+            var birthdayEntities = await _context.Birthdays.AsNoTracking().ToListAsync();
 
-            var birthdays = birthdayEntities
-                .Select(birthday => new Birthday
+            return intervalTime switch
+            {
+                "all" => birthdayEntities.Where(x=>x.Name.Contains(searchString)).OrderBy(x=>x.Date.DayOfYear).ThenBy(x=>x.Name).ToList(),
+                "today" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Day == today.Day && x.Date.Month == today.Month),
+                "tomorrow" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.DayOfYear - dayOfYear == 1, x => x.Name),
+                "10 days" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.DayOfYear - dayOfYear >= 0 && x.Date.DayOfYear - dayOfYear <= 10, x => x.Date.DayOfYear),
+                "this month" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Month == today.Month, x => x.Date.Day),
+                _ => FilterBirthdays(birthdayEntities, searchString,x => true).OrderBy(x=>x.Date.DayOfYear).ThenBy(x=>x.Name).ToList()
+            };
+            
+            List<Birthday> FilterBirthdays(List<Birthday> birthdays, string searchString, Predicate<Birthday> predicate, Func<Birthday, object> ordering = null)
+            {
+                var filtered = birthdays.FindAll(predicate);
+                
+                if (ordering != null)
                 {
-                    Id = birthday.Id,
-                    Name = birthday.Name,
-                    Description = birthday.Description,
-                    Date = birthday.Date,
-                })
-                .ToList();
+                    filtered.Sort((x, y) => Comparer<object>.Default.Compare(ordering(x), ordering(y)));
+                }
 
-            return birthdays;
+                if (!String.IsNullOrEmpty(searchString))
+                {
+                    filtered = filtered.Where(x => x.Name.Contains(searchString)).ToList();
+                }
+                return filtered;
+            }
         }
-        
-        
 
         public async Task<Guid> Create(Birthday birthday)
         {
@@ -63,6 +76,4 @@ namespace Congratulator.DataAccess.Repositories
             return id;
         }
     }
-
-
 }
