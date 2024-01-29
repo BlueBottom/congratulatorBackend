@@ -1,4 +1,5 @@
-﻿using Congratulator.Core.Abstractions;
+﻿using System.Runtime.InteropServices.JavaScript;
+using Congratulator.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Congratulator.Domain.Birthday;
 
@@ -16,37 +17,33 @@ namespace Congratulator.DataAccess.Repositories
         public async Task<List<Birthday>> Get(string intervalTime, string searchString)
         {
             var today = DateTime.Today;
-            var dayOfYear = GetDayOfYear(today);
+            var dayOfYear = DateTime.Today.DayOfYear;
             var birthdayEntities = await _context.Birthdays.AsNoTracking().ToListAsync();
 
             return intervalTime switch
             {
-                "all" => (searchString != null) ? birthdayEntities.Where(x=>x.Name.Contains(searchString)).OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList() : birthdayEntities.OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList(),
+                "all" => birthdayEntities.Where(x=>x.Name.Contains(searchString)).OrderBy(x=>x.Date.DayOfYear).ThenBy(x=>x.Name).ToList(),
                 "today" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Day == today.Day && x.Date.Month == today.Month),
-                "tomorrow" => FilterBirthdays(birthdayEntities, searchString,x => GetDayOfYear(x.Date) - dayOfYear == 1, x => x.Name),
-                "10 days" => FilterBirthdays(birthdayEntities, searchString,x => GetDayOfYear(x.Date) - dayOfYear >= 0 && GetDayOfYear(x.Date) - dayOfYear <= 10, x => GetDayOfYear(x.Date)),
+                "tomorrow" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.DayOfYear - dayOfYear == 1, x => x.Name),
+                "10 days" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.DayOfYear - dayOfYear >= 0 && x.Date.DayOfYear - dayOfYear <= 10, x => x.Date.DayOfYear),
                 "this month" => FilterBirthdays(birthdayEntities, searchString,x => x.Date.Month == today.Month, x => x.Date.Day),
-                _ => FilterBirthdays(birthdayEntities, searchString,x => true).OrderBy(x=>GetDayOfYear(x.Date)).ThenBy(x=>x.Name).ToList()
+                _ => FilterBirthdays(birthdayEntities, searchString,x => true).OrderBy(x=>x.Date.DayOfYear).ThenBy(x=>x.Name).ToList()
             };
             
             List<Birthday> FilterBirthdays(List<Birthday> birthdays, string searchString, Predicate<Birthday> predicate, Func<Birthday, object> ordering = null)
             {
                 var filtered = birthdays.FindAll(predicate);
+                
                 if (ordering != null)
                 {
                     filtered.Sort((x, y) => Comparer<object>.Default.Compare(ordering(x), ordering(y)));
                 }
 
-                if (searchString != null)
+                if (String.IsNullOrEmpty(searchString))
                 {
                     filtered = filtered.Where(x => x.Name.Contains(searchString)).ToList();
                 }
                 return filtered;
-            }
-            
-            int GetDayOfYear(DateTime date)
-            {
-                return date.DayOfYear;
             }
         }
 
