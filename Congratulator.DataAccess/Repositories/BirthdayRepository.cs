@@ -49,18 +49,10 @@ namespace Congratulator.DataAccess.Repositories
 
         public async Task<Guid> Create(Birthday birthday)
         {
-            var birthdayEntity = new Birthday
-            {
-                Id = birthday.Id,
-                Name = birthday.Name,
-                Description = birthday.Description,
-                Date = birthday.Date,
-            };
-
-            await _context.Birthdays.AddAsync(birthdayEntity);
+            await _context.Birthdays.AddAsync(birthday);
             await _context.SaveChangesAsync();
 
-            return birthdayEntity.Id;
+            return birthday.Id;
         }
 
         public async Task<Guid> Update(Guid id, string name, string description, DateTime date)

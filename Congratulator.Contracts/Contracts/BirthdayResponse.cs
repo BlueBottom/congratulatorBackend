@@ -1,8 +1,8 @@
-﻿namespace Congratulator.API.Contracts
+﻿namespace Congratulator.Contracts.Contracts
 {
     public record BirthdayResponse(
         Guid Id, 
         string Name,
         string Description,
-        DateTime date);
+        DateTime Date);
 }

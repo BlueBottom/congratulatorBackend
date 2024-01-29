@@ -1,4 +1,5 @@
-﻿using Congratulator.Core.Abstractions;
+﻿using Congratulator.Contracts.Contracts;
+using Congratulator.Core.Abstractions;
 using Congratulator.Domain.Birthday;
 
 namespace Congratulator.Application.Services
@@ -16,8 +17,15 @@ namespace Congratulator.Application.Services
             return await _birthdayRepository.Get(intervalTime, searchString);
         }
 
-        public async Task<Guid> CreateBirthday(Birthday birthday)
+        public async Task<Guid> CreateBirthday(BirthdayRequest birthdayRequest)
         {
+            var birthday = new Birthday
+            {
+                Name = birthdayRequest.Name,
+                Description = birthdayRequest.Description,
+                Date = birthdayRequest.Date,
+            };
+
             return await _birthdayRepository.Create(birthday);
         }
 

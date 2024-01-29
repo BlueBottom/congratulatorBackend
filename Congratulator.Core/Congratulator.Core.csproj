@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Congratulator.Contracts\Congratulator.Contracts.csproj" />
     <ProjectReference Include="..\Congratulator.Domain\Congratulator.Domain.csproj" />
   </ItemGroup>
 
