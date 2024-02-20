@@ -1,5 +1,6 @@
 ﻿using Congratulator.Core.Abstractions;
 using Congratulator.Domain.Birthday;
+using Microsoft.AspNetCore.Http;
 
 namespace Congratulator.Application.Services
 {
@@ -11,9 +12,9 @@ namespace Congratulator.Application.Services
             _birthdayRepository = birthdayRepository;
         }
 
-        public async Task<List<Birthday>> GetAllBirthdays()
+        public async Task<List<Birthday>> GetAllBirthdays(string intervalTime = "", string searchString = "")
         {
-            return await _birthdayRepository.Get();
+            return await _birthdayRepository.Get(intervalTime, searchString);
         }
 
         public async Task<Guid> CreateBirthday(Birthday birthday)
@@ -21,9 +22,9 @@ namespace Congratulator.Application.Services
             return await _birthdayRepository.Create(birthday);
         }
 
-        public async Task<Guid> UpdateBirthday(Guid id, string name, string description, DateTime date)
+        public async Task<Guid> UpdateBirthday(Guid id, string name, string description, DateTime date, byte[] image)
         {
-            return await _birthdayRepository.Update(id, name, description, date);
+            return await _birthdayRepository.Update(id, name, description, date, image);
         }
 
         public async Task<Guid> DeleteBirthday(Guid id)

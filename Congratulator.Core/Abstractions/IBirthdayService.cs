@@ -1,4 +1,5 @@
 ﻿using Congratulator.Domain.Birthday;
+using Microsoft.AspNetCore.Http;
 
 namespace Congratulator.Core.Abstractions
 {
@@ -6,7 +7,7 @@ namespace Congratulator.Core.Abstractions
     {
         Task<Guid> CreateBirthday(Birthday birthday);
         Task<Guid> DeleteBirthday(Guid id);
-        Task<List<Birthday>> GetAllBirthdays();
-        Task<Guid> UpdateBirthday(Guid id, string name, string description, DateTime date);
+        Task<List<Birthday>> GetAllBirthdays(string intervalTime, string searchString);
+        Task<Guid> UpdateBirthday(Guid id, string name, string description, DateTime date, byte[] image);
     }
 }

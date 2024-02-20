@@ -4,5 +4,7 @@
         Guid Id, 
         string Name,
         string Description,
-        DateTime date);
+        DateTime Date,
+        byte[] Image
+         );
 }

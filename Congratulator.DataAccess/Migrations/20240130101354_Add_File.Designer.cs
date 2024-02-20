@@ -3,6 +3,7 @@ using System;
 using Congratulator.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Congratulator.DataAccess.Migrations
 {
     [DbContext(typeof(CongratulatorDbContext))]
-    partial class CongratulatorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240130101354_Add_File")]
+    partial class Add_File
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,4 +1,5 @@
-﻿using Congratulator.API.Contracts;
+﻿using System.Net.Mime;
+using Congratulator.API.Contracts;
 using Congratulator.Core.Abstractions;
 using Congratulator.Domain.Birthday;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +18,20 @@ namespace Congratulator.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<BirthdayResponse>>> GetBirthdays() 
+        public async Task<ActionResult<List<BirthdayResponse>>> GetBirthdays(string intervalTime = "", string searchString = "") 
         {
-            var birthdays = await _birthdayService.GetAllBirthdays();
+            var birthdays = await _birthdayService.GetAllBirthdays(intervalTime, searchString);
 
-            var response = birthdays.Select(b => new BirthdayResponse(b.Id, b.Name, b.Description, b.Date));
+            var response = birthdays.Select(b => new BirthdayResponse(b.Id, b.Name, b.Description, b.Date, b.Image));
 
             return Ok(response);
         }
+        /*/*#1#
+        [HttpGet]
+        public async Task<*/
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateBirthday([FromBody] BirthdayRequest request)
+        public async Task<ActionResult<Guid>> CreateBirthday([FromForm] BirthdayRequest request)
         {
             var birthday = new Birthday
             {
@@ -35,6 +39,13 @@ namespace Congratulator.API.Controllers
                 Description = request.Description,
                 Date = request.Date,
             };
+
+            if (request.Image != null)
+            {
+                using var target = new MemoryStream();
+                await request.Image.CopyToAsync(target);
+                birthday.Image = target.ToArray();
+            }
             
 
             var birthdayId = await _birthdayService.CreateBirthday(birthday);
@@ -43,9 +54,22 @@ namespace Congratulator.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateBirthday(Guid id, [FromBody] BirthdayRequest request)
+        public async Task<ActionResult<Guid>> UpdateBirthday(Guid id, [FromForm] BirthdayRequest request)
         {
-            var birthdayId = await _birthdayService.UpdateBirthday(id, request.Name, request.Description, request.Date);
+            var birthday = new Birthday
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Date = request.Date,
+            };
+            if (request.Image != null)
+            {
+                using var target = new MemoryStream();
+                await request.Image.CopyToAsync(target);
+                birthday.Image = target.ToArray();
+            }
+            
+            var birthdayId = await _birthdayService.UpdateBirthday(id, birthday.Name, birthday.Description, birthday.Date, birthday.Image);
 
             return Ok(birthdayId);
         }
